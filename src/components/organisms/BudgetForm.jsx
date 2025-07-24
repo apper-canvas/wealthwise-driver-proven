@@ -9,16 +9,33 @@ import Card from "@/components/atoms/Card";
 import ApperIcon from "@/components/ApperIcon";
 import { budgetService } from "@/services/api/budgetService";
 
-const BudgetForm = ({ isOpen, onClose, onSave }) => {
+const BudgetForm = ({ isOpen, onClose, onSave, budget }) => {
   const [formData, setFormData] = useState({
     category: "",
     limit: "",
     period: "monthly"
   });
 
-  const [loading, setLoading] = useState(false);
+const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
+  // Initialize form data when budget prop changes
+  React.useEffect(() => {
+    if (budget) {
+      setFormData({
+        category: budget.category || "",
+        limit: budget.limit?.toString() || "",
+        period: budget.period || "monthly"
+      });
+    } else {
+      setFormData({
+        category: "",
+        limit: "",
+        period: "monthly"
+      });
+    }
+    setErrors({});
+  }, [budget, isOpen]);
   const categories = [
     "Food & Dining",
     "Transportation", 
@@ -65,19 +82,28 @@ const BudgetForm = ({ isOpen, onClose, onSave }) => {
 
     setLoading(true);
 
-    try {
+try {
       const budgetData = {
         ...formData,
         limit: parseFloat(formData.limit),
-        spent: 0
+        ...(budget ? {} : { spent: 0 }) // Only set spent to 0 for new budgets
       };
 
-      const savedBudget = await budgetService.create(budgetData);
-      toast.success("Budget created successfully!");
+      let savedBudget;
+      if (budget) {
+        // Update existing budget
+        savedBudget = await budgetService.update(budget.Id, budgetData);
+        toast.success("Budget updated successfully!");
+      } else {
+        // Create new budget
+        savedBudget = await budgetService.create(budgetData);
+        toast.success("Budget created successfully!");
+      }
+      
       onSave(savedBudget);
       handleClose();
-    } catch (error) {
-      toast.error("Failed to create budget");
+} catch (error) {
+      toast.error(budget ? "Failed to update budget" : "Failed to create budget");
     } finally {
       setLoading(false);
     }
@@ -121,8 +147,8 @@ const BudgetForm = ({ isOpen, onClose, onSave }) => {
         >
           <Card className="p-6">
             <div className="flex items-center justify-between mb-6">
-              <h2 className="text-xl font-bold text-gray-900">
-                Create New Budget
+<h2 className="text-xl font-bold text-gray-900">
+                {budget ? "Edit Budget" : "Create New Budget"}
               </h2>
               <Button variant="ghost" onClick={handleClose}>
                 <ApperIcon name="X" className="w-5 h-5" />
@@ -203,8 +229,8 @@ const BudgetForm = ({ isOpen, onClose, onSave }) => {
                     >
                       <ApperIcon name="Loader2" className="w-4 h-4" />
                     </motion.div>
-                  ) : (
-                    <span>Create Budget</span>
+) : (
+                    <span>{budget ? "Update Budget" : "Create Budget"}</span>
                   )}
                 </Button>
               </div>

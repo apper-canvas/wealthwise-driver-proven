@@ -18,10 +18,10 @@ const [budgets, setBudgets] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [showBudgetForm, setShowBudgetForm] = useState(false);
+const [showBudgetForm, setShowBudgetForm] = useState(false);
   const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [budgetToDelete, setBudgetToDelete] = useState(null);
-
+  const [editingBudget, setEditingBudget] = useState(null);
   const loadData = async () => {
     try {
       setLoading(true);
@@ -99,13 +99,28 @@ const handleDeleteBudget = (budgetId) => {
     }
   };
 
-  const handleAddBudget = () => {
+const handleAddBudget = () => {
+    setEditingBudget(null);
     setShowBudgetForm(true);
   };
 
-  const handleBudgetSaved = (newBudget) => {
+  const handleEditBudget = (budget) => {
+    setEditingBudget(budget);
+    setShowBudgetForm(true);
+  };
+
+const handleBudgetSaved = (newBudget) => {
     setBudgets(prev => [...prev, newBudget]);
     setShowBudgetForm(false);
+    setEditingBudget(null);
+  };
+
+  const handleBudgetUpdated = (updatedBudget) => {
+    setBudgets(prev => prev.map(budget => 
+      budget.Id === updatedBudget.Id ? updatedBudget : budget
+    ));
+    setShowBudgetForm(false);
+    setEditingBudget(null);
   };
 
   return (
@@ -135,12 +150,20 @@ const handleDeleteBudget = (budgetId) => {
                     <p className="text-sm text-gray-500">{budget.period}</p>
                   </div>
                 </div>
-                <button
-                  onClick={() => handleDeleteBudget(budget.Id)}
-                  className="text-gray-400 hover:text-red-500 transition-colors"
-                >
-                  <ApperIcon name="Trash2" className="w-4 h-4" />
-                </button>
+<div className="flex items-center space-x-2">
+                  <button
+                    onClick={() => handleEditBudget(budget)}
+                    className="text-gray-400 hover:text-blue-500 transition-colors"
+                  >
+                    <ApperIcon name="Edit2" className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteBudget(budget.Id)}
+                    className="text-gray-400 hover:text-red-500 transition-colors"
+                  >
+                    <ApperIcon name="Trash2" className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
 
               <div className="space-y-4">
@@ -191,8 +214,12 @@ const handleDeleteBudget = (budgetId) => {
       </div>
 <BudgetForm
         isOpen={showBudgetForm}
-        onClose={() => setShowBudgetForm(false)}
-        onSave={handleBudgetSaved}
+        onClose={() => {
+          setShowBudgetForm(false);
+          setEditingBudget(null);
+        }}
+        onSave={editingBudget ? handleBudgetUpdated : handleBudgetSaved}
+        budget={editingBudget}
       />
 
       <ConfirmModal
