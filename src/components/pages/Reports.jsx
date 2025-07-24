@@ -1,15 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import Card from "@/components/atoms/Card";
-import Button from "@/components/atoms/Button";
-import Select from "@/components/atoms/Select";
+import { endOfMonth, endOfYear, format, startOfMonth, startOfYear, subMonths } from "date-fns";
+import { transactionService } from "@/services/api/transactionService";
+import ApperIcon from "@/components/ApperIcon";
 import ExpenseChart from "@/components/organisms/ExpenseChart";
 import SpendingTrends from "@/components/organisms/SpendingTrends";
-import Loading from "@/components/ui/Loading";
+import Select from "@/components/atoms/Select";
+import Card from "@/components/atoms/Card";
+import Button from "@/components/atoms/Button";
 import Error from "@/components/ui/Error";
-import ApperIcon from "@/components/ApperIcon";
-import { transactionService } from "@/services/api/transactionService";
-import { format, startOfMonth, endOfMonth, subMonths, startOfYear, endOfYear } from "date-fns";
+import Loading from "@/components/ui/Loading";
 
 const Reports = () => {
   const [transactions, setTransactions] = useState([]);
@@ -58,7 +58,7 @@ const Reports = () => {
     }
   };
 
-  const { start, end } = getDateRange();
+const { start, end } = getDateRange();
   const filteredTransactions = transactions.filter(t => {
     const transactionDate = new Date(t.date);
     return transactionDate >= start && transactionDate <= end;
@@ -88,6 +88,64 @@ const Reports = () => {
     .sort(([,a], [,b]) => b - a)
     .slice(0, 5);
 
+const handleExport = async () => {
+    try {
+      // Create CSV content
+      const csvContent = [];
+      
+      // Add summary section
+      csvContent.push('FINANCIAL REPORT SUMMARY');
+      csvContent.push(`Report Period: ${format(start, 'MMM dd, yyyy')} - ${format(end, 'MMM dd, yyyy')}`);
+      csvContent.push('');
+      csvContent.push('SUMMARY METRICS');
+      csvContent.push(`Total Income,$${totalIncome.toFixed(2)}`);
+      csvContent.push(`Total Expenses,$${totalExpenses.toFixed(2)}`);
+      csvContent.push(`Net Income,$${netIncome.toFixed(2)}`);
+      csvContent.push(`Savings Rate,${savingsRate.toFixed(1)}%`);
+      csvContent.push('');
+      
+      // Add transactions section
+      csvContent.push('TRANSACTION DETAILS');
+      csvContent.push('Date,Description,Category,Type,Amount');
+      filteredTransactions.forEach(transaction => {
+        csvContent.push(`${format(new Date(transaction.date), 'MMM dd, yyyy')},${transaction.description},${transaction.category},${transaction.type},$${transaction.amount.toFixed(2)}`);
+      });
+      csvContent.push('');
+      
+      // Add category breakdown
+      csvContent.push('TOP SPENDING CATEGORIES');
+      csvContent.push('Category,Amount,Percentage of Expenses');
+      topCategories.forEach(([category, amount]) => {
+        const percentage = totalExpenses > 0 ? (amount / totalExpenses) * 100 : 0;
+        csvContent.push(`${category},$${amount.toFixed(2)},${percentage.toFixed(1)}%`);
+      });
+      
+      // Create and download file
+      const csvString = csvContent.join('\n');
+      const blob = new Blob([csvString], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      
+      if (link.download !== undefined) {
+        const url = URL.createObjectURL(blob);
+        link.setAttribute('href', url);
+        link.setAttribute('download', `financial-report-${format(start, 'yyyy-MM-dd')}-to-${format(end, 'yyyy-MM-dd')}.csv`);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+      }
+      
+// Show success message
+      const { toast } = await import('react-toastify');
+      toast.success('Report exported successfully!');
+      
+    } catch (error) {
+      console.error('Export failed:', error);
+      const { toast } = await import('react-toastify');
+      toast.error('Failed to export report. Please try again.');
+    }
+  };
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -112,7 +170,7 @@ const Reports = () => {
             <option value="thisYear">This Year</option>
           </Select>
 
-          <Button variant="outline">
+<Button variant="outline" onClick={handleExport}>
             <ApperIcon name="Download" className="w-4 h-4 mr-2" />
             Export
           </Button>
