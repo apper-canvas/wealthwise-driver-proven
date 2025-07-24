@@ -10,6 +10,7 @@ import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
 import ApperIcon from "@/components/ApperIcon";
+import ConfirmModal from "@/components/organisms/ConfirmModal";
 import { transactionService } from "@/services/api/transactionService";
 import { format } from "date-fns";
 
@@ -21,7 +22,8 @@ const TransactionsList = ({ onEdit }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [typeFilter, setTypeFilter] = useState("all");
   const [categoryFilter, setCategoryFilter] = useState("all");
-
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [transactionToDelete, setTransactionToDelete] = useState(null);
   const loadTransactions = async () => {
     try {
       setLoading(true);
@@ -67,17 +69,22 @@ const TransactionsList = ({ onEdit }) => {
     setFilteredTransactions(filtered);
   }, [transactions, searchTerm, typeFilter, categoryFilter]);
 
-  const handleDelete = async (transactionId) => {
-    if (!confirm("Are you sure you want to delete this transaction?")) {
-      return;
-    }
+const handleDelete = (transactionId) => {
+    setTransactionToDelete(transactionId);
+    setShowConfirmModal(true);
+  };
+
+  const confirmDelete = async () => {
+    if (!transactionToDelete) return;
 
     try {
-      await transactionService.delete(transactionId);
-      setTransactions(prev => prev.filter(t => t.Id !== transactionId));
+      await transactionService.delete(transactionToDelete);
+      setTransactions(prev => prev.filter(t => t.Id !== transactionToDelete));
       toast.success("Transaction deleted successfully!");
     } catch (error) {
       toast.error("Failed to delete transaction");
+    } finally {
+      setTransactionToDelete(null);
     }
   };
 
@@ -202,8 +209,22 @@ const TransactionsList = ({ onEdit }) => {
               </div>
             </motion.div>
           ))}
-        </Card>
+</Card>
       )}
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => {
+          setShowConfirmModal(false);
+          setTransactionToDelete(null);
+        }}
+        onConfirm={confirmDelete}
+        title="Delete Transaction"
+        message="Are you sure you want to delete this transaction? This action cannot be undone."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
+      />
     </div>
   );
 };

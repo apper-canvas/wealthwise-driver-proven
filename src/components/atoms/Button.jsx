@@ -1,21 +1,16 @@
-import React from "react";
+import React, { forwardRef } from "react";
 import { cn } from "@/utils/cn";
 
-const Button = React.forwardRef(({ 
-  className, 
-  variant = "primary", 
-  size = "md", 
-  children, 
-  ...props 
-}, ref) => {
-  const baseClasses = "inline-flex items-center justify-center font-medium rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+const Button = React.forwardRef(({ className, variant = "primary", size = "md", children, ...props }, ref) => {
+  const baseStyles = "inline-flex items-center justify-center rounded-xl font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
   
-  const variants = {
-    primary: "gradient-primary text-white hover:brightness-110 hover:scale-[1.02] focus:ring-primary-500 shadow-lg",
+const variants = {
+    primary: "bg-primary-600 hover:bg-primary-700 text-white focus:ring-primary-500",
     secondary: "gradient-secondary text-white hover:brightness-110 hover:scale-[1.02] focus:ring-secondary-500 shadow-lg",
-    success: "gradient-success text-white hover:brightness-110 hover:scale-[1.02] focus:ring-success-500 shadow-lg",
     outline: "border-2 border-primary-500 text-primary-600 hover:bg-primary-50 hover:scale-[1.02] focus:ring-primary-500",
     ghost: "text-gray-600 hover:bg-gray-100 hover:text-gray-900 focus:ring-gray-500",
+    success: "gradient-success text-white hover:brightness-110 hover:scale-[1.02] focus:ring-success-500 shadow-lg",
+    destructive: "bg-red-600 hover:bg-red-700 text-white focus:ring-red-500"
   };
 
   const sizes = {
@@ -25,9 +20,9 @@ const Button = React.forwardRef(({
     xl: "px-8 py-4 text-lg",
   };
 
-  return (
+return (
     <button
-      className={cn(baseClasses, variants[variant], sizes[size], className)}
+      className={cn(baseStyles, variants[variant], sizes[size], className)}
       ref={ref}
       {...props}
     >

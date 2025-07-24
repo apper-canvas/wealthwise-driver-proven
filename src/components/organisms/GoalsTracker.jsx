@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import AddProgressModal from "@/components/organisms/AddProgressModal";
+import ConfirmModal from "@/components/organisms/ConfirmModal";
 import { differenceInDays, format } from "date-fns";
 import { goalsService } from "@/services/api/goalsService";
 import ApperIcon from "@/components/ApperIcon";
@@ -12,14 +13,14 @@ import ProgressBar from "@/components/molecules/ProgressBar";
 import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
 import Loading from "@/components/ui/Loading";
-
 const GoalsTracker = ({ onAddGoal }) => {
 const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [showProgressModal, setShowProgressModal] = useState(false);
   const [selectedGoal, setSelectedGoal] = useState(null);
-
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [goalToDelete, setGoalToDelete] = useState(null);
 const loadGoals = async () => {
     try {
       setLoading(true);
@@ -56,17 +57,22 @@ const loadGoals = async () => {
     );
   }
 
-const handleDeleteGoal = async (goalId) => {
-    if (!confirm("Are you sure you want to delete this goal? This action cannot be undone.")) {
-      return;
-    }
+const handleDeleteGoal = (goalId) => {
+    setGoalToDelete(goalId);
+    setShowConfirmModal(true);
+  };
+
+  const confirmDeleteGoal = async () => {
+    if (!goalToDelete) return;
 
     try {
-      await goalsService.delete(goalId);
-      setGoals(prev => prev.filter(g => g.Id !== goalId));
+      await goalsService.delete(goalToDelete);
+      setGoals(prev => prev.filter(g => g.Id !== goalToDelete));
       toast.success("Goal deleted successfully!");
     } catch (error) {
       toast.error("Failed to delete goal");
+    } finally {
+      setGoalToDelete(null);
     }
   };
 
@@ -207,6 +213,20 @@ const handleDeleteGoal = async (goalId) => {
         onSuccess={(updatedGoal) => {
           setGoals(prev => prev.map(g => g.Id === updatedGoal.Id ? updatedGoal : g));
         }}
+      />
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => {
+          setShowConfirmModal(false);
+          setGoalToDelete(null);
+        }}
+        onConfirm={confirmDeleteGoal}
+        title="Delete Goal"
+        message="Are you sure you want to delete this savings goal? This action cannot be undone and will remove all progress data."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
       />
     </div>
   );

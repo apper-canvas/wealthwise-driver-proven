@@ -10,6 +10,7 @@ import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
 import ApperIcon from "@/components/ApperIcon";
 import BudgetForm from "@/components/organisms/BudgetForm";
+import ConfirmModal from "@/components/organisms/ConfirmModal";
 import { budgetService } from "@/services/api/budgetService";
 import { transactionService } from "@/services/api/transactionService";
 const BudgetManager = () => {
@@ -18,6 +19,9 @@ const [budgets, setBudgets] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showBudgetForm, setShowBudgetForm] = useState(false);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
+  const [budgetToDelete, setBudgetToDelete] = useState(null);
+
   const loadData = async () => {
     try {
       setLoading(true);
@@ -76,17 +80,22 @@ const [budgets, setBudgets] = useState([]);
     };
   });
 
-const handleDeleteBudget = async (budgetId) => {
-    if (!confirm("Are you sure you want to delete this budget? This action cannot be undone.")) {
-      return;
-    }
+const handleDeleteBudget = (budgetId) => {
+    setBudgetToDelete(budgetId);
+    setShowConfirmModal(true);
+  };
+
+  const confirmDeleteBudget = async () => {
+    if (!budgetToDelete) return;
 
     try {
-      await budgetService.delete(budgetId);
-      setBudgets(prev => prev.filter(b => b.Id !== budgetId));
+      await budgetService.delete(budgetToDelete);
+      setBudgets(prev => prev.filter(b => b.Id !== budgetToDelete));
       toast.success("Budget deleted successfully!");
     } catch (error) {
       toast.error("Failed to delete budget");
+    } finally {
+      setBudgetToDelete(null);
     }
   };
 
@@ -184,6 +193,20 @@ const handleDeleteBudget = async (budgetId) => {
         isOpen={showBudgetForm}
         onClose={() => setShowBudgetForm(false)}
         onSave={handleBudgetSaved}
+      />
+
+      <ConfirmModal
+        isOpen={showConfirmModal}
+        onClose={() => {
+          setShowConfirmModal(false);
+          setBudgetToDelete(null);
+        }}
+        onConfirm={confirmDeleteBudget}
+        title="Delete Budget"
+        message="Are you sure you want to delete this budget? This action cannot be undone and will remove all tracking data."
+        confirmText="Delete"
+        cancelText="Cancel"
+        type="danger"
       />
     </div>
   );
