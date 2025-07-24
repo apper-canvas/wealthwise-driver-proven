@@ -11,11 +11,10 @@ import ApperIcon from "@/components/ApperIcon";
 import { goalsService } from "@/services/api/goalsService";
 import { format, differenceInDays } from "date-fns";
 
-const GoalsTracker = () => {
+const GoalsTracker = ({ onAddGoal }) => {
   const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
   const loadGoals = async () => {
     try {
       setLoading(true);
@@ -79,9 +78,9 @@ const GoalsTracker = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
+<div className="flex items-center justify-between">
         <h2 className="text-2xl font-bold text-gray-900">Savings Goals</h2>
-        <Button>
+        <Button onClick={onAddGoal}>
           <ApperIcon name="Plus" className="w-4 h-4 mr-2" />
           Add Goal
         </Button>

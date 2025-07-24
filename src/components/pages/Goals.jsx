@@ -1,7 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import GoalsTracker from "@/components/organisms/GoalsTracker";
-
+import GoalForm from "@/components/organisms/GoalForm";
 const Goals = () => {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  const handleAddGoal = () => {
+    setIsModalOpen(true);
+  };
+
+  const handleCloseModal = () => {
+    setIsModalOpen(false);
+  };
+
+  const handleGoalSaved = () => {
+    setIsModalOpen(false);
+  };
+
   return (
     <div className="space-y-6">
       <div>
@@ -13,7 +27,13 @@ const Goals = () => {
         </p>
       </div>
 
-      <GoalsTracker />
+<GoalsTracker onAddGoal={handleAddGoal} />
+      
+      <GoalForm 
+        isOpen={isModalOpen}
+        onClose={handleCloseModal}
+        onSave={handleGoalSaved}
+      />
     </div>
   );
 };
