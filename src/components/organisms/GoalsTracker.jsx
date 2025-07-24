@@ -1,21 +1,26 @@
-import React, { useState, useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
+import AddProgressModal from "@/components/organisms/AddProgressModal";
+import { differenceInDays, format } from "date-fns";
+import { goalsService } from "@/services/api/goalsService";
+import ApperIcon from "@/components/ApperIcon";
+import Goals from "@/components/pages/Goals";
 import Card from "@/components/atoms/Card";
 import Button from "@/components/atoms/Button";
 import ProgressBar from "@/components/molecules/ProgressBar";
-import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
-import ApperIcon from "@/components/ApperIcon";
-import { goalsService } from "@/services/api/goalsService";
-import { format, differenceInDays } from "date-fns";
+import Loading from "@/components/ui/Loading";
 
 const GoalsTracker = ({ onAddGoal }) => {
-  const [goals, setGoals] = useState([]);
+const [goals, setGoals] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
-  const loadGoals = async () => {
+  const [error, setError] = useState(null);
+  const [showProgressModal, setShowProgressModal] = useState(false);
+  const [selectedGoal, setSelectedGoal] = useState(null);
+
+const loadGoals = async () => {
     try {
       setLoading(true);
       setError("");
@@ -168,16 +173,14 @@ const GoalsTracker = ({ onAddGoal }) => {
                     </span>
                   </div>
 
-                  {!isCompleted && (
+{!isCompleted && (
                     <Button
                       size="sm"
                       variant="outline"
                       className="w-full"
                       onClick={() => {
-                        const amount = prompt("Enter amount to add:");
-                        if (amount && !isNaN(amount)) {
-                          handleAddProgress(goal.Id, parseFloat(amount));
-                        }
+                        setSelectedGoal(goal);
+                        setShowProgressModal(true);
                       }}
                     >
                       <ApperIcon name="Plus" className="w-4 h-4 mr-2" />
@@ -190,6 +193,17 @@ const GoalsTracker = ({ onAddGoal }) => {
           );
         })}
       </div>
+<AddProgressModal
+        isOpen={showProgressModal}
+        onClose={() => {
+          setShowProgressModal(false);
+          setSelectedGoal(null);
+        }}
+        goal={selectedGoal}
+        onSuccess={(updatedGoal) => {
+          setGoals(prev => prev.map(g => g.Id === updatedGoal.Id ? updatedGoal : g));
+        }}
+      />
     </div>
   );
 };
