@@ -56,7 +56,11 @@ const loadGoals = async () => {
     );
   }
 
-  const handleDeleteGoal = async (goalId) => {
+const handleDeleteGoal = async (goalId) => {
+    if (!confirm("Are you sure you want to delete this goal? This action cannot be undone.")) {
+      return;
+    }
+
     try {
       await goalsService.delete(goalId);
       setGoals(prev => prev.filter(g => g.Id !== goalId));

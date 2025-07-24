@@ -76,14 +76,18 @@ const [budgets, setBudgets] = useState([]);
     };
   });
 
-  const handleDeleteBudget = async (budgetId) => {
+const handleDeleteBudget = async (budgetId) => {
+    if (!confirm("Are you sure you want to delete this budget? This action cannot be undone.")) {
+      return;
+    }
+
     try {
       await budgetService.delete(budgetId);
       setBudgets(prev => prev.filter(b => b.Id !== budgetId));
       toast.success("Budget deleted successfully!");
     } catch (error) {
       toast.error("Failed to delete budget");
-}
+    }
   };
 
   const handleAddBudget = () => {
