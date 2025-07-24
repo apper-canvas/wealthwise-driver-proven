@@ -1,0 +1,42 @@
+[
+  {
+    "Id": 1,
+    "name": "Emergency Fund",
+    "targetAmount": 10000.00,
+    "currentAmount": 6500.00,
+    "targetDate": "2024-12-31",
+    "icon": "Shield"
+  },
+  {
+    "Id": 2,
+    "name": "Vacation Fund",
+    "targetAmount": 3000.00,
+    "currentAmount": 1200.00,
+    "targetDate": "2024-06-15",
+    "icon": "Plane"
+  },
+  {
+    "Id": 3,
+    "name": "New Car",
+    "targetAmount": 25000.00,
+    "currentAmount": 8500.00,
+    "targetDate": "2025-03-01",
+    "icon": "Car"
+  },
+  {
+    "Id": 4,
+    "name": "Home Down Payment",
+    "targetAmount": 50000.00,
+    "currentAmount": 15000.00,
+    "targetDate": "2025-12-31",
+    "icon": "Home"
+  },
+  {
+    "Id": 5,
+    "name": "Investment Portfolio",
+    "targetAmount": 20000.00,
+    "currentAmount": 5250.00,
+    "targetDate": "2024-10-01",
+    "icon": "TrendingUp"
+  }
+]

@@ -1,0 +1,137 @@
+[
+  {
+    "Id": 1,
+    "amount": 3500.00,
+    "type": "income",
+    "category": "Salary",
+    "description": "Monthly salary payment",
+    "date": "2024-01-01",
+    "recurring": true
+  },
+  {
+    "Id": 2,
+    "amount": 85.50,
+    "type": "expense",
+    "category": "Food & Dining",
+    "description": "Grocery shopping at Whole Foods",
+    "date": "2024-01-02",
+    "recurring": false
+  },
+  {
+    "Id": 3,
+    "amount": 1200.00,
+    "type": "expense",
+    "category": "Bills & Utilities",
+    "description": "Monthly rent payment",
+    "date": "2024-01-01",
+    "recurring": true
+  },
+  {
+    "Id": 4,
+    "amount": 45.00,
+    "type": "expense",
+    "category": "Transportation",
+    "description": "Gas station fill-up",
+    "date": "2024-01-03",
+    "recurring": false
+  },
+  {
+    "Id": 5,
+    "amount": 125.99,
+    "type": "expense",
+    "category": "Shopping",
+    "description": "Clothing purchase at Mall",
+    "date": "2024-01-04",
+    "recurring": false
+  },
+  {
+    "Id": 6,
+    "amount": 35.00,
+    "type": "expense",
+    "category": "Entertainment",
+    "description": "Movie tickets and snacks",
+    "date": "2024-01-05",
+    "recurring": false
+  },
+  {
+    "Id": 7,
+    "amount": 150.00,
+    "type": "expense",
+    "category": "Bills & Utilities",
+    "description": "Electric and water bill",
+    "date": "2024-01-06",
+    "recurring": true
+  },
+  {
+    "Id": 8,
+    "amount": 500.00,
+    "type": "income",
+    "category": "Freelance",
+    "description": "Web design project payment",
+    "date": "2024-01-07",
+    "recurring": false
+  },
+  {
+    "Id": 9,
+    "amount": 75.25,
+    "type": "expense",
+    "category": "Food & Dining",
+    "description": "Restaurant dinner with friends",
+    "date": "2024-01-08",
+    "recurring": false
+  },
+  {
+    "Id": 10,
+    "amount": 200.00,
+    "type": "expense",
+    "category": "Healthcare",
+    "description": "Doctor visit and prescription",
+    "date": "2024-01-09",
+    "recurring": false
+  },
+  {
+    "Id": 11,
+    "amount": 95.00,
+    "type": "expense",
+    "category": "Transportation",
+    "description": "Monthly metro pass",
+    "date": "2024-01-10",
+    "recurring": true
+  },
+  {
+    "Id": 12,
+    "amount": 60.00,
+    "type": "expense",
+    "category": "Food & Dining",
+    "description": "Coffee and lunch",
+    "date": "2024-01-11",
+    "recurring": false
+  },
+  {
+    "Id": 13,
+    "amount": 2800.00,
+    "type": "income",
+    "category": "Business",
+    "description": "Consulting project milestone",
+    "date": "2024-01-12",
+    "recurring": false
+  },
+  {
+    "Id": 14,
+    "amount": 220.00,
+    "type": "expense",
+    "category": "Education",
+    "description": "Online course subscription",
+    "date": "2024-01-13",
+    "recurring": false
+  },
+  {
+    "Id": 15,
+    "amount": 180.50,
+    "type": "expense",
+    "category": "Shopping",
+    "description": "Electronics and accessories",
+    "date": "2024-01-14",
+    "recurring": false
+  }
+]

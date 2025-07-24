@@ -1,0 +1,44 @@
+[
+  {
+    "Id": 1,
+    "category": "Food & Dining",
+    "limit": 400.00,
+    "spent": 0,
+    "period": "monthly"
+  },
+  {
+    "Id": 2,
+    "category": "Transportation",
+    "limit": 200.00,
+    "spent": 0,
+    "period": "monthly"
+  },
+  {
+    "Id": 3,
+    "category": "Shopping",
+    "limit": 300.00,
+    "spent": 0,
+    "period": "monthly"
+  },
+  {
+    "Id": 4,
+    "category": "Entertainment",
+    "limit": 150.00,
+    "spent": 0,
+    "period": "monthly"
+  },
+  {
+    "Id": 5,
+    "category": "Bills & Utilities",
+    "limit": 1500.00,
+    "spent": 0,
+    "period": "monthly"
+  },
+  {
+    "Id": 6,
+    "category": "Healthcare",
+    "limit": 250.00,
+    "spent": 0,
+    "period": "monthly"
+  }
+]
