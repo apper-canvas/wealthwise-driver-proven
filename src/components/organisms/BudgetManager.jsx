@@ -9,15 +9,15 @@ import Loading from "@/components/ui/Loading";
 import Error from "@/components/ui/Error";
 import Empty from "@/components/ui/Empty";
 import ApperIcon from "@/components/ApperIcon";
+import BudgetForm from "@/components/organisms/BudgetForm";
 import { budgetService } from "@/services/api/budgetService";
 import { transactionService } from "@/services/api/transactionService";
-
 const BudgetManager = () => {
-  const [budgets, setBudgets] = useState([]);
+const [budgets, setBudgets] = useState([]);
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
+  const [showBudgetForm, setShowBudgetForm] = useState(false);
   const loadData = async () => {
     try {
       setLoading(true);
@@ -83,14 +83,23 @@ const BudgetManager = () => {
       toast.success("Budget deleted successfully!");
     } catch (error) {
       toast.error("Failed to delete budget");
-    }
+}
+  };
+
+  const handleAddBudget = () => {
+    setShowBudgetForm(true);
+  };
+
+  const handleBudgetSaved = (newBudget) => {
+    setBudgets(prev => [...prev, newBudget]);
+    setShowBudgetForm(false);
   };
 
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h2 className="text-2xl font-bold text-gray-900">Budget Overview</h2>
-        <Button>
+<h2 className="text-2xl font-bold text-gray-900">Budget Overview</h2>
+        <Button onClick={handleAddBudget}>
           <ApperIcon name="Plus" className="w-4 h-4 mr-2" />
           Add Budget
         </Button>
@@ -167,6 +176,11 @@ const BudgetManager = () => {
           </motion.div>
         ))}
       </div>
+<BudgetForm
+        isOpen={showBudgetForm}
+        onClose={() => setShowBudgetForm(false)}
+        onSave={handleBudgetSaved}
+      />
     </div>
   );
 };
