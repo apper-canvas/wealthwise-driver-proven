@@ -1,60 +1,320 @@
-import transactionData from "@/services/mockData/transactions.json";
+// Initialize ApperClient with Project ID and Public Key
+const getApperClient = () => {
+  const { ApperClient } = window.ApperSDK;
+  return new ApperClient({
+    apperProjectId: import.meta.env.VITE_APPER_PROJECT_ID,
+    apperPublicKey: import.meta.env.VITE_APPER_PUBLIC_KEY
+  });
+};
 
-// Simulate async delay
-const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
-
-// In-memory storage to persist changes during session
-let transactions = [...transactionData];
+const TABLE_NAME = 'transaction_c';
 
 export const transactionService = {
   async getAll() {
-    await delay(300);
-    return [...transactions];
+    try {
+      const apperClient = getApperClient();
+      
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "amount_c" } },
+          { field: { Name: "type_c" } },
+          { field: { Name: "category_c" } },
+          { field: { Name: "description_c" } },
+          { field: { Name: "date_c" } },
+          { field: { Name: "recurring_c" } },
+          { field: { Name: "merchant_c" } },
+          { field: { Name: "account_type_c" } },
+          { field: { Name: "imported_c" } },
+          { field: { Name: "bank_id_c" } }
+        ],
+        orderBy: [
+          {
+            fieldName: "date_c",
+            sorttype: "DESC"
+          }
+        ]
+      };
+      
+      const response = await apperClient.fetchRecords(TABLE_NAME, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+      
+      // Transform database fields to UI format
+      return response.data.map(record => ({
+        Id: record.Id,
+        amount: record.amount_c || 0,
+        type: record.type_c || 'expense',
+        category: record.category_c || 'Other',
+        description: record.description_c || record.Name || '',
+        date: record.date_c || new Date().toISOString().split('T')[0],
+        recurring: record.recurring_c === 'recurring' || false,
+        merchant: record.merchant_c || '',
+        accountType: record.account_type_c || '',
+        imported: record.imported_c || false,
+        bankId: record.bank_id_c || ''
+      }));
+    } catch (error) {
+      if (error?.response?.data?.message) {
+        console.error("Error fetching transactions from transaction service:", error?.response?.data?.message);
+      } else {
+        console.error(error.message);
+      }
+      return [];
+    }
   },
 
   async getById(id) {
-    await delay(200);
-    const transaction = transactions.find(t => t.Id === parseInt(id));
-    if (!transaction) {
-      throw new Error("Transaction not found");
+    try {
+      const apperClient = getApperClient();
+      
+      const params = {
+        fields: [
+          { field: { Name: "Name" } },
+          { field: { Name: "amount_c" } },
+          { field: { Name: "type_c" } },
+          { field: { Name: "category_c" } },
+          { field: { Name: "description_c" } },
+          { field: { Name: "date_c" } },
+          { field: { Name: "recurring_c" } },
+          { field: { Name: "merchant_c" } },
+          { field: { Name: "account_type_c" } },
+          { field: { Name: "imported_c" } },
+          { field: { Name: "bank_id_c" } }
+        ]
+      };
+      
+      const response = await apperClient.getRecordById(TABLE_NAME, parseInt(id), params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+      
+      if (!response.data) {
+        throw new Error("Transaction not found");
+      }
+      
+      // Transform database fields to UI format
+      const record = response.data;
+      return {
+        Id: record.Id,
+        amount: record.amount_c || 0,
+        type: record.type_c || 'expense',
+        category: record.category_c || 'Other',
+        description: record.description_c || record.Name || '',
+        date: record.date_c || new Date().toISOString().split('T')[0],
+        recurring: record.recurring_c === 'recurring' || false,
+        merchant: record.merchant_c || '',
+        accountType: record.account_type_c || '',
+        imported: record.imported_c || false,
+        bankId: record.bank_id_c || ''
+      };
+    } catch (error) {
+      if (error?.response?.data?.message) {
+        console.error(`Error fetching transaction with ID ${id} from transaction service:`, error?.response?.data?.message);
+      } else {
+        console.error(error.message);
+      }
+      throw error;
     }
-    return { ...transaction };
   },
 
   async create(transactionData) {
-    await delay(400);
-    const maxId = Math.max(...transactions.map(t => t.Id), 0);
-    const newTransaction = {
-      ...transactionData,
-      Id: maxId + 1,
-    };
-    transactions.push(newTransaction);
-    return { ...newTransaction };
+    try {
+      const apperClient = getApperClient();
+      
+      // Transform UI data to database format - only include Updateable fields
+      const dbData = {
+        Name: transactionData.description || 'Transaction',
+        amount_c: parseFloat(transactionData.amount) || 0,
+        type_c: transactionData.type || 'expense',
+        category_c: transactionData.category || 'Other',
+        description_c: transactionData.description || '',
+        date_c: transactionData.date || new Date().toISOString().split('T')[0],
+        recurring_c: transactionData.recurring ? 'recurring' : '',
+        merchant_c: transactionData.merchant || '',
+        account_type_c: transactionData.accountType || '',
+        imported_c: transactionData.imported || false,
+        bank_id_c: transactionData.bankId || ''
+      };
+      
+      const params = {
+        records: [dbData]
+      };
+      
+      const response = await apperClient.createRecord(TABLE_NAME, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+      
+      if (response.results) {
+        const failedRecords = response.results.filter(result => !result.success);
+        
+        if (failedRecords.length > 0) {
+          console.error(`Failed to create transaction ${failedRecords.length} records:${JSON.stringify(failedRecords)}`);
+          failedRecords.forEach(record => {
+            record.errors?.forEach(error => {
+              throw new Error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) throw new Error(record.message);
+          });
+        }
+        
+        const successfulRecord = response.results.find(result => result.success);
+        if (successfulRecord) {
+          // Transform back to UI format
+          const record = successfulRecord.data;
+          return {
+            Id: record.Id,
+            amount: record.amount_c || 0,
+            type: record.type_c || 'expense',
+            category: record.category_c || 'Other',
+            description: record.description_c || record.Name || '',
+            date: record.date_c || new Date().toISOString().split('T')[0],
+            recurring: record.recurring_c === 'recurring' || false,
+            merchant: record.merchant_c || '',
+            accountType: record.account_type_c || '',
+            imported: record.imported_c || false,
+            bankId: record.bank_id_c || ''
+          };
+        }
+      }
+      
+      throw new Error("Failed to create transaction");
+    } catch (error) {
+      if (error?.response?.data?.message) {
+        console.error("Error creating transaction in transaction service:", error?.response?.data?.message);
+      } else {
+        console.error(error.message);
+      }
+      throw error;
+    }
   },
 
   async update(id, transactionData) {
-    await delay(400);
-    const index = transactions.findIndex(t => t.Id === parseInt(id));
-    if (index === -1) {
-      throw new Error("Transaction not found");
+    try {
+      const apperClient = getApperClient();
+      
+      // Transform UI data to database format - only include Updateable fields
+      const dbData = {
+        Id: parseInt(id),
+        Name: transactionData.description || 'Transaction',
+        amount_c: parseFloat(transactionData.amount) || 0,
+        type_c: transactionData.type || 'expense',
+        category_c: transactionData.category || 'Other',
+        description_c: transactionData.description || '',
+        date_c: transactionData.date || new Date().toISOString().split('T')[0],
+        recurring_c: transactionData.recurring ? 'recurring' : '',
+        merchant_c: transactionData.merchant || '',
+        account_type_c: transactionData.accountType || '',
+        imported_c: transactionData.imported || false,
+        bank_id_c: transactionData.bankId || ''
+      };
+      
+      const params = {
+        records: [dbData]
+      };
+      
+      const response = await apperClient.updateRecord(TABLE_NAME, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+      
+      if (response.results) {
+        const failedRecords = response.results.filter(result => !result.success);
+        
+        if (failedRecords.length > 0) {
+          console.error(`Failed to update transaction ${failedRecords.length} records:${JSON.stringify(failedRecords)}`);
+          failedRecords.forEach(record => {
+            record.errors?.forEach(error => {
+              throw new Error(`${error.fieldLabel}: ${error.message}`);
+            });
+            if (record.message) throw new Error(record.message);
+          });
+        }
+        
+        const successfulRecord = response.results.find(result => result.success);
+        if (successfulRecord) {
+          // Transform back to UI format
+          const record = successfulRecord.data;
+          return {
+            Id: record.Id,
+            amount: record.amount_c || 0,
+            type: record.type_c || 'expense',
+            category: record.category_c || 'Other',
+            description: record.description_c || record.Name || '',
+            date: record.date_c || new Date().toISOString().split('T')[0],
+            recurring: record.recurring_c === 'recurring' || false,
+            merchant: record.merchant_c || '',
+            accountType: record.account_type_c || '',
+            imported: record.imported_c || false,
+            bankId: record.bank_id_c || ''
+          };
+        }
+      }
+      
+      throw new Error("Failed to update transaction");
+    } catch (error) {
+      if (error?.response?.data?.message) {
+        console.error("Error updating transaction in transaction service:", error?.response?.data?.message);
+      } else {
+        console.error(error.message);
+      }
+      throw error;
     }
-    transactions[index] = { ...transactions[index], ...transactionData };
-    return { ...transactions[index] };
   },
 
   async delete(id) {
-    await delay(300);
-    const index = transactions.findIndex(t => t.Id === parseInt(id));
-    if (index === -1) {
-      throw new Error("Transaction not found");
+    try {
+      const apperClient = getApperClient();
+      
+      const params = {
+        RecordIds: [parseInt(id)]
+      };
+      
+      const response = await apperClient.deleteRecord(TABLE_NAME, params);
+      
+      if (!response.success) {
+        console.error(response.message);
+        throw new Error(response.message);
+      }
+      
+      if (response.results) {
+        const failedRecords = response.results.filter(result => !result.success);
+        
+        if (failedRecords.length > 0) {
+          console.error(`Failed to delete transaction ${failedRecords.length} records:${JSON.stringify(failedRecords)}`);
+          failedRecords.forEach(record => {
+            if (record.message) throw new Error(record.message);
+          });
+        }
+        
+        return response.results.some(result => result.success);
+      }
+      
+      return false;
+    } catch (error) {
+      if (error?.response?.data?.message) {
+        console.error("Error deleting transaction in transaction service:", error?.response?.data?.message);
+      } else {
+        console.error(error.message);
+      }
+      throw error;
     }
-transactions.splice(index, 1);
-    return true;
   },
 
-  // Bank connection functionality
+  // Bank connection functionality (preserved from original implementation)
   async connectBank({ bankId, credentials }) {
-    await delay(2000); // Simulate authentication time
+    // Simulate authentication time
+    await new Promise(resolve => setTimeout(resolve, 2000));
     
     // Simulate random connection failures (20% chance)
     if (Math.random() < 0.2) {
@@ -76,82 +336,75 @@ transactions.splice(index, 1);
   },
 
   async importTransactions(bankId) {
-    await delay(3000); // Simulate import time
+    // Simulate import time
+    await new Promise(resolve => setTimeout(resolve, 3000));
     
     // Generate sample imported transactions
     const sampleTransactions = [
       {
         date: new Date().toISOString().split('T')[0],
-        amount: -45.67,
+        amount: 45.67,
         description: "Starbucks Coffee #1234",
         merchant: "Starbucks",
-        accountType: "checking"
+        accountType: "checking",
+        type: "expense"
       },
       {
         date: new Date(Date.now() - 86400000).toISOString().split('T')[0],
-        amount: -89.23,
+        amount: 89.23,
         description: "Shell Gas Station",
         merchant: "Shell",
-        accountType: "checking"
+        accountType: "checking",
+        type: "expense"
       },
       {
         date: new Date(Date.now() - 172800000).toISOString().split('T')[0],
-        amount: -156.78,
+        amount: 156.78,
         description: "Whole Foods Market",
         merchant: "Whole Foods",
-        accountType: "checking"
+        accountType: "checking",
+        type: "expense"
       },
       {
         date: new Date(Date.now() - 259200000).toISOString().split('T')[0],
         amount: 2500.00,
         description: "Direct Deposit - Payroll",
         merchant: "Employer",
-        accountType: "checking"
-      },
-      {
-        date: new Date(Date.now() - 345600000).toISOString().split('T')[0],
-        amount: -1200.00,
-        description: "Rent Payment",
-        merchant: "Property Management",
-        accountType: "checking"
-      },
-      {
-        date: new Date(Date.now() - 432000000).toISOString().split('T')[0],
-        amount: -67.45,
-        description: "Amazon.com Purchase",
-        merchant: "Amazon",
-        accountType: "credit"
+        accountType: "checking",
+        type: "income"
       }
     ];
 
-    // Transform and categorize imported transactions
-    const maxId = Math.max(...transactions.map(t => t.Id), 0);
-    let newId = maxId + 1;
+    try {
+      // Create transactions using the service's create method
+      const importedTransactions = [];
+      for (const rawTx of sampleTransactions) {
+        const categorizedTx = this.categorizeTransaction(rawTx);
+        const transactionData = {
+          amount: rawTx.amount,
+          description: rawTx.description,
+          date: rawTx.date,
+          category: categorizedTx.category,
+          type: rawTx.type,
+          merchant: rawTx.merchant,
+          accountType: rawTx.accountType,
+          imported: true,
+          bankId: bankId
+        };
+        
+        const created = await this.create(transactionData);
+        importedTransactions.push(created);
+      }
 
-    const importedTransactions = sampleTransactions.map((rawTx, index) => {
-      const categorizedTx = this.categorizeTransaction(rawTx);
       return {
-        Id: newId + index,
-        amount: rawTx.amount,
-        description: rawTx.description,
-        date: rawTx.date,
-        category: categorizedTx.category,
-        type: rawTx.amount > 0 ? 'income' : 'expense',
-        merchant: rawTx.merchant,
-        accountType: rawTx.accountType,
-        imported: true,
-        bankId: bankId
+        success: true,
+        count: importedTransactions.length,
+        transactions: importedTransactions
       };
-    });
-
-    // Add to transactions array
-    transactions.push(...importedTransactions);
-
-    return {
-      success: true,
-      count: importedTransactions.length,
-      transactions: importedTransactions
-    };
+    } catch (error) {
+      console.error("Error importing transactions:", error);
+      throw error;
+    }
   },
 
   categorizeTransaction(transaction) {
@@ -183,7 +436,7 @@ transactions.splice(index, 1);
       // Housing
       {
         keywords: ['rent', 'mortgage', 'property', 'utilities', 'electric', 'water', 'internet'],
-        category: 'Housing'
+        category: 'Bills & Utilities'
       },
       // Income
       {
@@ -211,11 +464,11 @@ transactions.splice(index, 1);
       }
     }
 
-    // Default category based on amount
-    if (transaction.amount > 0) {
+    // Default category based on amount/type
+    if (transaction.type === 'income' || transaction.amount > 0) {
       return { category: 'Income' };
     } else {
       return { category: 'Other' };
     }
-  }
+}
 };

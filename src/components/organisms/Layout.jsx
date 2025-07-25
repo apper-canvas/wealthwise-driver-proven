@@ -1,15 +1,13 @@
 import React, { useState } from "react";
 import { Outlet } from "react-router-dom";
-import Sidebar from "@/components/organisms/Sidebar";
 import ApperIcon from "@/components/ApperIcon";
+import Sidebar from "@/components/organisms/Sidebar";
 
 const Layout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
-
   return (
     <div className="min-h-screen bg-gray-50 flex">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-      
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile header */}
         <div className="lg:hidden bg-white shadow-sm border-b border-gray-200 px-4 py-3">
