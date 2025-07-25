@@ -15,8 +15,7 @@ const [formData, setFormData] = useState({
     targetAmount: "",
     currentAmount: "0",
     targetDate: "",
-    icon: "Target",
-    notes: ""
+    icon: "Target"
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -84,7 +83,6 @@ const goalData = {
         currentAmount: parseFloat(formData.currentAmount) || 0,
         targetDate: formData.targetDate,
         icon: formData.icon,
-        notes: formData.notes.trim(),
         createdAt: new Date().toISOString()
       };
       
@@ -100,8 +98,7 @@ setFormData({
         targetAmount: "",
         currentAmount: "0",
         targetDate: "",
-        icon: "Target",
-        notes: ""
+        icon: "Target"
       });
       setErrors({});
       
@@ -141,8 +138,7 @@ setFormData({
         targetAmount: "",
         currentAmount: "0",
         targetDate: "",
-        icon: "Target",
-        notes: ""
+        icon: "Target"
       });
       setErrors({});
       onClose?.();
@@ -257,19 +253,6 @@ setFormData({
                   </Select>
                 </FormField>
 
-                <FormField
-                  label="Notes"
-                  error={errors.notes}
-                >
-                  <textarea
-                    value={formData.notes}
-                    onChange={(e) => handleInputChange("notes", e.target.value)}
-                    disabled={isSubmitting}
-                    placeholder="Add any notes or reminders for this goal..."
-                    rows="3"
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 resize-none"
-                  />
-                </FormField>
 
                 <div className="flex gap-3 pt-4">
                   <Button
