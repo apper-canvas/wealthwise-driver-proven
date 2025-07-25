@@ -22,6 +22,7 @@ const params = {
           { field: { Name: "limit_c" } },
           { field: { Name: "period_c" } },
           { field: { Name: "spent_c" } },
+          { field: { Name: "description_c" } },
           { field: { Name: "CreatedOn" } }
         ],
         orderBy: [
@@ -46,6 +47,7 @@ category: record.category_c || '',
         limit: record.limit_c || 0,
         period: record.period_c || 'monthly',
         spent: record.spent_c || 0,
+        description: record.description_c || '',
         created_at: record.CreatedOn || ''
       }));
     } catch (error) {
@@ -69,6 +71,7 @@ fields: [
           { field: { Name: "limit_c" } },
           { field: { Name: "period_c" } },
           { field: { Name: "spent_c" } },
+          { field: { Name: "description_c" } },
           { field: { Name: "CreatedOn" } }
         ]
       };
@@ -92,6 +95,7 @@ return {
         limit: record.limit_c || 0,
         period: record.period_c || 'monthly',
         spent: record.spent_c || 0,
+        description: record.description_c || '',
         created_at: record.CreatedOn || ''
       };
     } catch (error) {
@@ -114,7 +118,8 @@ const dbData = {
         category_c: budgetData.category || '',
         limit_c: parseFloat(budgetData.limit) || 0,
         period_c: budgetData.period || 'monthly',
-        spent_c: parseFloat(budgetData.spent) || 0
+        spent_c: parseFloat(budgetData.spent) || 0,
+        description_c: budgetData.description || ''
         // CreatedOn is a system field and will be automatically set by the database
       };
       
@@ -152,6 +157,7 @@ const record = successfulRecord.data;
             limit: record.limit_c || 0,
             period: record.period_c || 'monthly',
             spent: record.spent_c || 0,
+            description: record.description_c || '',
             created_at: record.CreatedOn || ''
           };
         }
@@ -174,12 +180,13 @@ const record = successfulRecord.data;
       
       // Transform UI data to database format - only include Updateable fields
       const dbData = {
-        Id: parseInt(id),
+Id: parseInt(id),
         Name: budgetData.category || 'Budget',
         category_c: budgetData.category || '',
         limit_c: parseFloat(budgetData.limit) || 0,
         period_c: budgetData.period || 'monthly',
-        spent_c: parseFloat(budgetData.spent) || 0
+        spent_c: parseFloat(budgetData.spent) || 0,
+        description_c: budgetData.description || ''
       };
       
       const params = {
@@ -216,6 +223,7 @@ return {
             limit: record.limit_c || 0,
             period: record.period_c || 'monthly',
             spent: record.spent_c || 0,
+            description: record.description_c || '',
             created_at: record.CreatedOn || ''
           };
         }

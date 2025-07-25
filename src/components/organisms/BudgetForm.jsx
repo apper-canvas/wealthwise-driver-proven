@@ -14,6 +14,7 @@ const [formData, setFormData] = useState({
     category: "",
     limit: "",
     period: "monthly",
+    description: "",
     created_at: ""
   });
 
@@ -27,6 +28,7 @@ React.useEffect(() => {
         category: budget.category || "",
         limit: budget.limit?.toString() || "",
         period: budget.period || "monthly",
+        description: budget.description || "",
         created_at: budget.created_at || ""
       });
     } else {
@@ -34,6 +36,7 @@ React.useEffect(() => {
         category: "",
         limit: "",
         period: "monthly",
+        description: "",
         created_at: ""
       });
     }
@@ -121,11 +124,12 @@ const budgetData = {
     }
   };
 
-  const handleClose = () => {
+const handleClose = () => {
     setFormData({
 category: "",
       limit: "",
       period: "monthly",
+      description: "",
       created_at: ""
     });
     setErrors({});
@@ -212,6 +216,19 @@ category: "",
                     </option>
                   ))}
                 </Select>
+              </FormField>
+
+              <FormField
+                label="Description"
+                error={errors.description}
+              >
+                <Input
+                  type="text"
+                  placeholder="Optional description for this budget"
+                  value={formData.description}
+                  onChange={(e) => handleInputChange("description", e.target.value)}
+                  error={!!errors.description}
+                />
               </FormField>
 
               {budget && (
