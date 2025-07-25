@@ -109,9 +109,12 @@ const handleDelete = (transactionId) => {
             onChange={(e) => setSearchTerm(e.target.value)}
           />
           
-          <select
+<select
             value={typeFilter}
-            onChange={(e) => setTypeFilter(e.target.value)}
+            onChange={(e) => {
+              const { value } = e.target;
+              setTypeFilter(value);
+            }}
             className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none"
           >
             <option value="all">All Types</option>
@@ -119,9 +122,12 @@ const handleDelete = (transactionId) => {
             <option value="expense">Expense</option>
           </select>
 
-          <select
+<select
             value={categoryFilter}
-            onChange={(e) => setCategoryFilter(e.target.value)}
+            onChange={(e) => {
+              const { value } = e.target;
+              setCategoryFilter(value);
+            }}
             className="px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm focus:border-primary-500 focus:ring-2 focus:ring-primary-200 focus:outline-none"
           >
             <option value="all">All Categories</option>
