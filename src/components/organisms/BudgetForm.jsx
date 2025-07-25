@@ -10,28 +10,31 @@ import ApperIcon from "@/components/ApperIcon";
 import { budgetService } from "@/services/api/budgetService";
 
 const BudgetForm = ({ isOpen, onClose, onSave, budget }) => {
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     category: "",
     limit: "",
-    period: "monthly"
+    period: "monthly",
+    created_at: ""
   });
 
 const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
   // Initialize form data when budget prop changes
-  React.useEffect(() => {
+React.useEffect(() => {
     if (budget) {
       setFormData({
         category: budget.category || "",
         limit: budget.limit?.toString() || "",
-        period: budget.period || "monthly"
+        period: budget.period || "monthly",
+        created_at: budget.created_at || ""
       });
     } else {
       setFormData({
         category: "",
         limit: "",
-        period: "monthly"
+        period: "monthly",
+        created_at: ""
       });
     }
     setErrors({});
@@ -83,11 +86,13 @@ const [loading, setLoading] = useState(false);
     setLoading(true);
 
 try {
-      const budgetData = {
+const budgetData = {
         ...formData,
         limit: parseFloat(formData.limit),
         ...(budget ? {} : { spent: 0 }) // Only set spent to 0 for new budgets
       };
+      // Remove created_at from submission data since it's a system field
+      delete budgetData.created_at;
 
       let savedBudget;
       if (budget) {
@@ -118,9 +123,10 @@ try {
 
   const handleClose = () => {
     setFormData({
-      category: "",
+category: "",
       limit: "",
-      period: "monthly"
+      period: "monthly",
+      created_at: ""
     });
     setErrors({});
     onClose();
@@ -190,7 +196,7 @@ try {
                 />
               </FormField>
 
-              <FormField
+<FormField
                 label="Period"
                 error={errors.period}
                 required
@@ -208,6 +214,19 @@ try {
                 </Select>
               </FormField>
 
+              {budget && (
+                <FormField
+                  label="Created At"
+                  error={errors.created_at}
+                >
+                  <Input
+                    type="datetime-local"
+                    value={formData.created_at ? new Date(formData.created_at).toISOString().slice(0, 16) : ""}
+                    readOnly
+                    className="bg-gray-50"
+                  />
+                </FormField>
+              )}
               <div className="flex justify-end space-x-3 pt-4">
                 <Button
                   type="button"

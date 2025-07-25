@@ -15,13 +15,14 @@ export const budgetService = {
     try {
       const apperClient = getApperClient();
       
-      const params = {
+const params = {
         fields: [
           { field: { Name: "Name" } },
           { field: { Name: "category_c" } },
           { field: { Name: "limit_c" } },
           { field: { Name: "period_c" } },
-          { field: { Name: "spent_c" } }
+          { field: { Name: "spent_c" } },
+          { field: { Name: "CreatedOn" } }
         ],
         orderBy: [
           {
@@ -41,10 +42,11 @@ export const budgetService = {
       // Transform database fields to UI format
       return response.data.map(record => ({
         Id: record.Id,
-        category: record.category_c || '',
+category: record.category_c || '',
         limit: record.limit_c || 0,
         period: record.period_c || 'monthly',
-        spent: record.spent_c || 0
+        spent: record.spent_c || 0,
+        created_at: record.CreatedOn || ''
       }));
     } catch (error) {
       if (error?.response?.data?.message) {
@@ -61,12 +63,13 @@ export const budgetService = {
       const apperClient = getApperClient();
       
       const params = {
-        fields: [
+fields: [
           { field: { Name: "Name" } },
           { field: { Name: "category_c" } },
           { field: { Name: "limit_c" } },
           { field: { Name: "period_c" } },
-          { field: { Name: "spent_c" } }
+          { field: { Name: "spent_c" } },
+          { field: { Name: "CreatedOn" } }
         ]
       };
       
@@ -83,12 +86,13 @@ export const budgetService = {
       
       // Transform database fields to UI format
       const record = response.data;
-      return {
+return {
         Id: record.Id,
         category: record.category_c || '',
         limit: record.limit_c || 0,
         period: record.period_c || 'monthly',
-        spent: record.spent_c || 0
+        spent: record.spent_c || 0,
+        created_at: record.CreatedOn || ''
       };
     } catch (error) {
       if (error?.response?.data?.message) {
@@ -105,12 +109,13 @@ export const budgetService = {
       const apperClient = getApperClient();
       
       // Transform UI data to database format - only include Updateable fields
-      const dbData = {
+const dbData = {
         Name: budgetData.category || 'Budget',
         category_c: budgetData.category || '',
         limit_c: parseFloat(budgetData.limit) || 0,
         period_c: budgetData.period || 'monthly',
         spent_c: parseFloat(budgetData.spent) || 0
+        // CreatedOn is a system field and will be automatically set by the database
       };
       
       const params = {
@@ -140,13 +145,14 @@ export const budgetService = {
         const successfulRecord = response.results.find(result => result.success);
         if (successfulRecord) {
           // Transform back to UI format
-          const record = successfulRecord.data;
+const record = successfulRecord.data;
           return {
             Id: record.Id,
             category: record.category_c || '',
             limit: record.limit_c || 0,
             period: record.period_c || 'monthly',
-            spent: record.spent_c || 0
+            spent: record.spent_c || 0,
+            created_at: record.CreatedOn || ''
           };
         }
       }
@@ -204,12 +210,13 @@ export const budgetService = {
         if (successfulRecord) {
           // Transform back to UI format
           const record = successfulRecord.data;
-          return {
+return {
             Id: record.Id,
             category: record.category_c || '',
             limit: record.limit_c || 0,
             period: record.period_c || 'monthly',
-            spent: record.spent_c || 0
+            spent: record.spent_c || 0,
+            created_at: record.CreatedOn || ''
           };
         }
       }
