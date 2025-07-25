@@ -10,12 +10,13 @@ import ApperIcon from "@/components/ApperIcon";
 import { goalsService } from "@/services/api/goalsService";
 
 const GoalForm = ({ isOpen, onClose, onSave }) => {
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     name: "",
     targetAmount: "",
     currentAmount: "0",
     targetDate: "",
-    icon: "Target"
+    icon: "Target",
+    notes: ""
   });
   const [errors, setErrors] = useState({});
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -77,12 +78,13 @@ const GoalForm = ({ isOpen, onClose, onSave }) => {
 
     setIsSubmitting(true);
     try {
-      const goalData = {
+const goalData = {
         name: formData.name.trim(),
         targetAmount: parseFloat(formData.targetAmount),
         currentAmount: parseFloat(formData.currentAmount) || 0,
         targetDate: formData.targetDate,
         icon: formData.icon,
+        notes: formData.notes.trim(),
         createdAt: new Date().toISOString()
       };
 
@@ -90,12 +92,13 @@ const GoalForm = ({ isOpen, onClose, onSave }) => {
       toast.success("Goal created successfully!");
       
       // Reset form
-      setFormData({
+setFormData({
         name: "",
         targetAmount: "",
         currentAmount: "0",
         targetDate: "",
-        icon: "Target"
+        icon: "Target",
+        notes: ""
       });
       setErrors({});
       
@@ -118,12 +121,13 @@ const GoalForm = ({ isOpen, onClose, onSave }) => {
 
   const handleClose = () => {
     if (!isSubmitting) {
-      setFormData({
+setFormData({
         name: "",
         targetAmount: "",
         currentAmount: "0",
         targetDate: "",
-        icon: "Target"
+        icon: "Target",
+        notes: ""
       });
       setErrors({});
       onClose?.();
@@ -221,7 +225,7 @@ const GoalForm = ({ isOpen, onClose, onSave }) => {
                   />
                 </FormField>
 
-                <FormField
+<FormField
                   label="Icon"
                   error={errors.icon}
                 >
@@ -236,6 +240,20 @@ const GoalForm = ({ isOpen, onClose, onSave }) => {
                       </option>
                     ))}
                   </Select>
+                </FormField>
+
+                <FormField
+                  label="Notes"
+                  error={errors.notes}
+                >
+                  <textarea
+                    value={formData.notes}
+                    onChange={(e) => handleInputChange("notes", e.target.value)}
+                    disabled={isSubmitting}
+                    placeholder="Add any notes or reminders for this goal..."
+                    rows="3"
+                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all duration-200 resize-none"
+                  />
                 </FormField>
 
                 <div className="flex gap-3 pt-4">
