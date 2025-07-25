@@ -44,8 +44,7 @@ const TransactionForm = ({ transaction, onSave, onCancel }) => {
       "Other"
     ]
   };
-
-  const validateForm = () => {
+const validateForm = () => {
     const newErrors = {};
 
     if (!formData.amount || parseFloat(formData.amount) <= 0) {
@@ -56,6 +55,9 @@ const TransactionForm = ({ transaction, onSave, onCancel }) => {
       newErrors.category = "Category is required";
     }
 
+    if (!formData.date) {
+      newErrors.date = "Date is required";
+    }
     if (!formData.description.trim()) {
       newErrors.description = "Description is required";
     }
@@ -152,15 +154,14 @@ const TransactionForm = ({ transaction, onSave, onCancel }) => {
               <option value="income">Income</option>
             </Select>
           </FormField>
-
-          <FormField
+<FormField
             label="Category"
             error={errors.category}
             required
           >
             <Select
               value={formData.category}
-              onChange={(e) => handleInputChange("category", e.target.value)}
+              onChange={(e) => handleInputChange("category", String(e.target.value || ""))}
               error={!!errors.category}
             >
               <option value="">Select category</option>
@@ -170,7 +171,7 @@ const TransactionForm = ({ transaction, onSave, onCancel }) => {
                 </option>
               ))}
             </Select>
-          </FormField>
+</FormField>
 
           <FormField
             label="Date"
@@ -180,7 +181,7 @@ const TransactionForm = ({ transaction, onSave, onCancel }) => {
             <Input
               type="date"
               value={formData.date}
-              onChange={(e) => handleInputChange("date", e.target.value)}
+              onChange={(e) => handleInputChange("date", String(e.target.value || ""))}
               error={!!errors.date}
             />
           </FormField>
