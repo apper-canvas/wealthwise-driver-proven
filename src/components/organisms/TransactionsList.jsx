@@ -42,29 +42,35 @@ const TransactionsList = ({ onEdit }) => {
     loadTransactions();
   }, []);
 
-  useEffect(() => {
-    let filtered = transactions;
+useEffect(() => {
+    let filtered = transactions || [];
 
-    // Filter by search term
-    if (searchTerm) {
-      filtered = filtered.filter(transaction =>
-        transaction.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        transaction.category.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+    // Filter by search term with safe property access
+    if (searchTerm && searchTerm.trim()) {
+      filtered = filtered.filter(transaction => {
+        const description = transaction?.description || '';
+        const category = transaction?.category || '';
+        return description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+               category.toLowerCase().includes(searchTerm.toLowerCase());
+      });
     }
 
-    // Filter by type
+    // Filter by type with safe property access
     if (typeFilter !== "all") {
-      filtered = filtered.filter(transaction => transaction.type === typeFilter);
+      filtered = filtered.filter(transaction => transaction?.type === typeFilter);
     }
 
-    // Filter by category
+    // Filter by category with safe property access
     if (categoryFilter !== "all") {
-      filtered = filtered.filter(transaction => transaction.category === categoryFilter);
+      filtered = filtered.filter(transaction => transaction?.category === categoryFilter);
     }
 
-    // Sort by date (newest first)
-    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+    // Sort by date (newest first) with safe date handling
+    filtered.sort((a, b) => {
+      const dateA = new Date(a?.date || 0);
+      const dateB = new Date(b?.date || 0);
+      return dateB - dateA;
+    });
 
     setFilteredTransactions(filtered);
   }, [transactions, searchTerm, typeFilter, categoryFilter]);
@@ -96,7 +102,7 @@ const handleDelete = (transactionId) => {
     return <Error message={error} onRetry={loadTransactions} />;
   }
 
-  const categories = [...new Set(transactions.map(t => t.category))];
+const categories = [...new Set(transactions.map(t => t?.category).filter(Boolean))];
 
   return (
     <div className="space-y-6">
