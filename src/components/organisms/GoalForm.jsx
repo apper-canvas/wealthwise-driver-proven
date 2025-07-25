@@ -87,6 +87,9 @@ const goalData = {
         notes: formData.notes.trim(),
         createdAt: new Date().toISOString()
       };
+      
+      console.log('GoalForm - Final goalData before submission:', goalData);
+      console.log('GoalForm - Icon value being submitted:', goalData.icon);
 
       const savedGoal = await goalsService.create(goalData);
       toast.success("Goal created successfully!");
@@ -110,8 +113,20 @@ setFormData({
     }
   };
 
-  const handleInputChange = (field, value) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+const handleInputChange = (field, value) => {
+    console.log(`GoalForm - handleInputChange called with field: ${field}, value:`, value);
+    
+    setFormData(prev => {
+      const updated = { ...prev, [field]: value };
+      console.log(`GoalForm - Updated formData for ${field}:`, updated);
+      
+      // Special logging for icon field to debug selection issue
+      if (field === 'icon') {
+        console.log(`GoalForm - Icon selection changed from "${prev.icon}" to "${value}"`);
+      }
+      
+      return updated;
+    });
     
     // Clear error when user starts typing
     if (errors[field]) {
